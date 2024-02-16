@@ -13,7 +13,6 @@ html, body {
 canvas {
   display: block;
   border-radius: 1em;
-  border-bottom-left-radius: 0;
 }
 
 button {
@@ -28,8 +27,6 @@ button {
   padding-left: 1em;
   padding-right: 1em;
   border-radius: 0.5em;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
 }
 
 button:hover {
