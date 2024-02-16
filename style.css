@@ -1,0 +1,39 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  font-family: "Josefin Sans";
+  color: white;
+}
+
+* {
+  font-family: "Josefin Sans";
+}
+
+canvas {
+  display: block;
+  border-radius: 1em;
+  border-bottom-left-radius: 0;
+}
+
+button {
+  display: block;
+  background: #dcc581;
+  border: unset;
+  color: black;
+  font-size: 1.5em;
+  font-family: "Josefin Sans";
+  padding: 0.5em;
+  padding-bottom: 0.3em;
+  padding-left: 1em;
+  padding-right: 1em;
+  border-radius: 0.5em;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+button:hover {
+  background: #ffbf00;
+  cursor: pointer;
+}
+
