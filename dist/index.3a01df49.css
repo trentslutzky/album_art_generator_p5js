@@ -45,6 +45,7 @@ input[type="color"] {
 input[type="file"] {
   height: 1.2em;
   padding: .1em;
+  font-family: Josefin Sans;
   font-size: 1.2em;
 }
 

@@ -1,22 +1,24 @@
-var color_bg, color_record, color_ortef_bg, color_ortef_text;
+var color_bg, color_record, color_ortef_bg, color_ortef_text, color_track_name;
 var nameColorPicker;
 var backgroundColorPicker;
 var nameColorPicker;
 var recordBackgroundColorPicker;
 var backgroundImageInput;
-var trackName = "SLEEV";
+var trackName = generateRandomEnglishLikeWord(5);
 var trackNameInput;
-var patternSize = 200;
+var patternGenerated = false;
+let img;
+let imgLoaded = false;
 let COLS = createCols("https://coolors.co/eb300f-fe7688-fff566-212121-306e42-0d3b66");
 function setup() {
-    console.log(COLS);
     let main_canvas = createCanvas(500, 500);
     main_canvas.position(50, 50);
     backgroundImageMaskLayer = createGraphics(500, 500);
     color_bg = color(40, 40, 40);
-    color_record = color("#fff");
-    color_ortef_bg = color(230, 180, 30);
+    color_record = generateRandomPastelColor();
+    color_ortef_bg = color(255, 225, 31);
     color_ortef_text = color(0);
+    color_track_name = color(0);
     saveButton = createButton("EXPORT IMAGE");
     saveButton.position(50, 575);
     saveButton.mousePressed(saveImage);
@@ -36,46 +38,55 @@ function setup() {
     recordBackgroundColorPicker.position(575, 230);
     recordBackgroundColorPickerLabel = createP("RECORD BACKGROUND COLOR");
     recordBackgroundColorPickerLabel.position(640, 227);
-    applyButton = createButton("APPLY COLORS");
-    applyButton.position(575, 285);
-    applyButton.mousePressed(applyColors);
+    trackNameColorPicker = createColorPicker(color_track_name);
+    trackNameColorPicker.position(575, 280);
+    trackNameColorPickerLabel = createP("TRACK NAME TEXT COLOR");
+    trackNameColorPickerLabel.position(640, 277);
+    applyButton = createButton("RANDOM TITLE");
+    applyButton.position(575, 345);
+    applyButton.mousePressed(randomizeTrackName);
     applyButton = createButton("RANDOM PATTERN");
     applyButton.position(575, 455);
     applyButton.mousePressed(generatePattern);
     applyButton = createButton("CLEAR PATTERN");
     applyButton.position(575, 505);
     applyButton.mousePressed(clearPattern);
-    textFont("Josefin Sans");
-    background(backgroundColorPicker.color());
-    fill(0);
-    circle(250, 250, 450);
-    applyColors();
+    input = createFileInput(handleFile);
+    input.position(575, 415);
+    layer1 = createGraphics(500, 500);
+    layer2 = createGraphics(500, 500);
+// generatePattern();
 }
 function draw() {
-    stroke(nameColorPicker.color());
-    fill(nameColorPicker.color());
-    rect(135, 104, 230, 70);
-    fill(color_ortef_text);
-    stroke(color_ortef_text);
-    textSize(55);
-    textAlign(CENTER);
-    text("ORTEF", 250, 160);
-    textSize(80);
-    textAlign(CENTER);
-    text(trackNameInput.value(), 250, 370);
-    stroke(lightenColor(recordBackgroundColorPicker.color(), -20));
-    fill(lightenColor(recordBackgroundColorPicker.color(), -20));
-    circle(250, 250, 80);
-    stroke(0);
+    noStroke();
+    if (!patternGenerated) background(recordBackgroundColorPicker.color());
+    layer1.noStroke();
+    layer2.noStroke();
+    layer2.clear();
+    layer2.textFont("Josefin Sans");
+    layer1.background(backgroundColorPicker.color());
+    layer1.fill(0);
+    layer1.circle(250, 250, 450);
+    layer1.erase();
+    layer1.circle(250, 250, 430);
+    layer1.noErase();
+    layer2.fill(nameColorPicker.color());
+    layer2.rect(135, 104, 230, 70);
+    layer2.fill(color_ortef_text);
+    layer2.textSize(55);
+    layer2.textAlign(CENTER);
+    layer2.text("ORTEF", 250, 160);
+    layer2.fill(trackNameColorPicker.color());
+    layer2.textSize(80);
+    layer2.textAlign(CENTER);
+    layer2.text(trackNameInput.value(), 250, 370);
+    layer2.fill(lightenColor(recordBackgroundColorPicker.color(), -20));
+    layer2.circle(250, 250, 80);
+    if (imgLoaded) image(img, 0, 0);
+    image(layer1, 0, 0);
+    image(layer2, 0, 0);
     fill(0);
     circle(250, 250, 20);
-    fill(0, 0, 0, 0);
-    stroke(0);
-    circle(250, 250, 430);
-}
-function applyColors() {
-    fill(recordBackgroundColorPicker.color());
-    circle(250, 250, 430);
 }
 function saveImage() {
     save(trackNameInput.value() + ".png");
@@ -84,14 +95,13 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 function clearPattern() {
-    fill(recordBackgroundColorPicker.color());
-    circle(250, 250, 430);
+    patternGenerated = false;
 }
 function generatePattern() {
-    background(backgroundColorPicker.color());
+    patternGenerated = true;
     fill(0);
     circle(250, 250, 450);
-    const patternSize = getRandomInt(10);
+    const patternSize = getRandomInt(5) + 5;
     const record_color = recordBackgroundColorPicker.value();
     PALETTE = [
         colorToHex(lightenColor(record_color, -20)),
@@ -100,7 +110,8 @@ function generatePattern() {
     ];
     patternColors(PALETTE);
     const t = width / patternSize;
-    pattern(randPattern(100));
+    // pattern(PTN.stripe(t / 10));
+    pattern(randPattern(t));
     circlePattern(250, 250, 430);
 }
 function createCols(url) {
@@ -140,17 +151,85 @@ function colorToHex(color1) {
 }
 function randPattern(t) {
     const ptArr = [
-        PTN.stripe(t / int(random(6, 12))),
-        PTN.stripeCircle(t / int(random(6, 12))),
-        PTN.stripePolygon(int(random(3, 7)), int(random(6, 12))),
+        PTN.stripe(t),
+        PTN.stripeCircle(t),
+        PTN.stripePolygon(int(random(3, 6)), t),
         PTN.stripeRadial(TAU / int(random(6, 30))),
         PTN.wave(t / int(random(1, 3)), t / int(random(10, 20)), t / 5, t / 10),
-        PTN.dot(t / 10, t / 10 * random(0.2, 1)),
-        PTN.checked(t / int(random(5, 20)), t / int(random(5, 20))),
-        PTN.cross(t / int(random(10, 20)), t / int(random(20, 40))),
-        PTN.triangle(t / int(random(5, 20)), t / int(random(5, 20)))
+        PTN.dot(t, t / 2),
+        PTN.checked(t, t),
+        PTN.cross(t, t / 8),
+        PTN.triangle(t / int(random(1, 3)), t / int(random(1, 4)))
     ];
     return random(ptArr);
+}
+// Once the img element is created, use it to 
+// convert the image element into a p5Image object. 
+function imgCreated() {
+    img.hide();
+    // Create a temporary p5.Graphics object to draw the image.
+    let g = createGraphics(img.elt.width, img.elt.height);
+    g.image(img, 0, 0);
+    // Remove the original element from the DOM.
+    img.remove();
+    // g.get will return image data as a p5.Image object
+    img = g.get(0, 0, g.width, g.height);
+    // Because we've converted it into a p5.Image object, we can
+    // use functions such as 'resize', and 'filter',
+    // which aren't available on the HTML img element.
+    // Uncomment the following lines for an example...
+    /*
+  // Resize it to fill the canvas
+  if (img.width < img.height){
+    img.resize(width, 0);
+  } else {
+    img.resize(0, height);
+  }
+  
+  // Posterize and invert the colours
+  img.filter(POSTERIZE, 2);
+  img.filter(INVERT);
+  */ // Record that we have finished creating the image object.
+    imgLoaded = true;
+}
+function handleFile(file) {
+    imgLoaded = false;
+    if (file.type === "image") {
+        // Create the image as an img element. 
+        // The 'imgCreated' function will be called when it
+        // is done, so we can convert it into a p5.Image object
+        img = createImg(file.data, "Alt text", "anonymous", imgCreated);
+        img.hide();
+    } else img = null;
+}
+function generateRandomEnglishLikeWord() {
+    const vowels = "AEIOU";
+    const consonants = "BCDFGHJKLMNPQRSTVWXYZ";
+    let word = "";
+    let isVowel = Math.random() < 0.5; // Start with a vowel or consonant randomly
+    for(let i = 0; i < 5; i++){
+        if (isVowel) word += vowels.charAt(Math.floor(Math.random() * vowels.length));
+        else word += consonants.charAt(Math.floor(Math.random() * consonants.length));
+        isVowel = !isVowel; // Switch between vowel and consonant
+    }
+    return word;
+}
+function generateRandomPastelColor() {
+    // Generate random RGB values within a soft range
+    let r = random(200, 255);
+    let g = random(200, 255);
+    let b = random(200, 255);
+    // Ensure the colors are close in terms of brightness
+    let minColor = min(r, g, b);
+    r = lerp(r, minColor, 0.2);
+    g = lerp(g, minColor, 0.2);
+    b = lerp(b, minColor, 0.2);
+    // Return the color
+    return color(r, g, b);
+}
+function randomizeTrackName() {
+    trackNameInput.elt.value = generateRandomEnglishLikeWord();
+    if (patternGenerated) generatePattern();
 }
 
 //# sourceMappingURL=index.ba7f5425.js.map
