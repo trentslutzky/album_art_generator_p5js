@@ -37,3 +37,19 @@ button:hover {
   cursor: pointer;
 }
 
+input {
+  font-size: 2em;
+  padding-top: 0.3em;
+  border-radius: 0.25em;
+}
+
+input[type=color] {
+  padding: 0.1em;
+  height: 1.2em;
+}
+
+input[type=file] {
+  font-size: 1.2em;
+  padding: 0.1em;
+  height: 1.2em;
+}
